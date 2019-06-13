@@ -1,43 +1,82 @@
 #include "DHT.h"
+#include <SD.h>
+#include <SPI.h>
+#include <Servo.h>
 
-#define DHTPIN A1 // o sensor dht11 foi conectado ao pino A1 no nosso tutorial
+// Não utilizamos mais
+//#include <DueFlashStorage.h>
+
+// Pino A1
+#define DHTPIN A1 
 #define DHTTYPE DHT11
+// Porta Digital PWM 6 
+#define SERVO 6 
 
 DHT dht(DHTPIN, DHTTYPE);
+Servo s; // Variável Servo
+DueFlashStorage dueFlashStorage;
 
-void setup() 
-{
-  pinMode(LED_BUILTIN, OUTPUT);
-Serial.begin(9600);
-Serial.println("DHTxx test!");
-dht.begin();
+int pos; // Posição Servo
+File arquivo;
+
+// The struct of the configuration.
+struct Amostra {
+  float temperatura[100];
+  float umidade[100];
+  int id;
+//  int32_t bigInteger;
+//  char* message;
+//  char c;
+};
+
+// initialize one struct
+Amostra amostras[2];
+int i = 0, x = 0;
+
+void setup() {
+  s.attach(SERVO);
+  s.write(0);
+  
+  Serial.begin(115200);
+  delay(500);
+
+  dht.begin();  
 }
+
+
+String msg;
 
 void loop() 
 {
-float umidade = dht.readHumidity();
-float temperatura = dht.readTemperature();
-// Se as variáveis temperatura e umidade não forem valores válidos, acusará falha de leitura.
-if (isnan(temperatura) || isnan(umidade)) 
-{
-Serial.println("Falha na leitura do dht11...");
-} 
-else 
-{
+    
+    if ( i < 100 )
+      x = 0;
+    else
+    { 
+      i = 0;
+      x = 1;
+     }
+    
+    amostras[ x ].temperatura[i] = dht.readTemperature();   
+    amostras[ x ].umidade[i] = dht.readHumidity();
 
-//Imprime os dados no monitor serial
-Serial.print("Umidade: ");
-Serial.print(umidade);
-Serial.print(" %t"); //quebra de linha
-Serial.print("Temperatura: ");
-Serial.print(temperatura);
-Serial.println(" °C");
+    msg = amostras[ x ].temperatura[i] + String(" ") +  amostras[ x ].umidade[i];
+    Serial.println( msg ); 
+    
 
-if ( umidade >= 90 )
-{ digitalWrite(LED_BUILTIN, HIGH);   // turn the LED on (HIGH is the voltage level)
-  delay(1000);                       // wait for a second
-  digitalWrite(LED_BUILTIN, LOW);    // turn the LED off by making the voltage LOW
-  delay(1000);                       // wait for a second
-}
-}
+    if ( amostras[ x ].umidade[i] >= 70 )
+    {
+        for(pos = 0; pos < 90; pos++)
+        {
+          s.write(pos);
+        delay(5);
+        }
+      delay(5);
+        for(pos = 90; pos >= 0; pos--)
+        {
+          s.write(pos);
+          delay(5);
+        }
+    }
+    
 }
