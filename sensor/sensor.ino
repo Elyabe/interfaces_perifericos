@@ -10,7 +10,7 @@
 #define SERVO 6 
 
 // Limiar temperatura para mover servo
-#define LIMIAR_TEMPERATURA 70
+#define LIMIAR_UMIDADE 60
 
 DHT dht(DHTPIN, DHTTYPE);
 
@@ -44,7 +44,7 @@ void loop()
     Serial.println( msg ); 
     
 
-    if ( temp >= LIMIAR_TEMPERATURA )
+    if ( umid >= LIMIAR_UMIDADE )
     {
         for(pos = 0; pos < 180; pos++)
         {

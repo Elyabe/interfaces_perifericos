@@ -11,7 +11,7 @@ import os
 i = 0
 
 #tamanho maximo do arquivo para escrever noutro
-TAM_MAX_ARQUIVO = 32000*8
+TAM_MAX_ARQUIVO = 16000*8
 
 #taxa leitura/atualizacao
 BAUD_RATE = 115200
@@ -22,7 +22,7 @@ except:
     print('Bad Leke! :(')
 
 while True:
-    ft = "teste_cagaco_"
+    ft = "arquivo_"
     file_name = ft + str(i) + ".csv"
 
     v = arduino.readline().split(' ')      
